@@ -58,7 +58,7 @@ const Home = (props) => {
 
   useEffect(() => {
     dispatch(loadUsers());
-  }, []);
+  }, [dispatch]);
 
   //handles opening and closing of the modal
   const handleOpen = () => {
