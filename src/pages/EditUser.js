@@ -45,7 +45,7 @@ const EditUser = (props) => {
 
   useEffect(() => {
     dispatch(editUser(id));
-  }, []);
+  }, [dispatch, id]);
 
   useEffect(() => {
     if (user) {
