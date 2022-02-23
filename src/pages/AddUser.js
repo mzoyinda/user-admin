@@ -32,8 +32,9 @@ const AddUser = (props) => {
     },
   });
 
-  //error message state
-  const [errorMsg, setErrorMsg] = useState("");
+  //Errors  state
+  const [errors, setErrors] = useState({});
+  const [submitted, setSubmitted] = useState(false);
 
   let history = useHistory();
   let dispatch = useDispatch();
@@ -41,9 +42,46 @@ const AddUser = (props) => {
   //renamed properties to eliminate instances like ('details.name' or 'details.email')
   const { name, username, email, address } = details;
 
+  //validate form based on the 'name' property
+  const validate = (e, name, value) => {
+    switch (name) {
+      case "username":
+      case "name":
+        if (value.length <= 4) {
+          setErrors({
+            ...errors,
+            username: "Username should have atleast 5 letters",
+            fullname: "fullname should have atleast 5 letters",
+          });
+        } else {
+          setErrors("");
+        }
+        break;
+
+      case "email":
+        if (
+          !new RegExp(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+          ).test(value)
+        ) {
+          setErrors({
+            ...errors,
+            email: "Enter a valid email address",
+          });
+        } else {
+          setErrors("");
+        }
+        break;
+
+      default:
+        break;
+    }
+  };
   //handling the input changes
   const handleChange = (e) => {
     let { name, value } = e.target;
+
+    validate(e, name, value);
 
     if (name === "address") {
       setDetails({ ...details, [name]: { city: value } });
@@ -55,13 +93,16 @@ const AddUser = (props) => {
   //handling user submission
   const handleSubmit = (e) => {
     e.preventDefault();
+    setSubmitted(true);
+
     if (!name || !username || !email || !address) {
-      setErrorMsg("Please input all fields");
+      setErrors({ ...errors, All: "Please input all fields" });
+    } else if (errors) {
+      setErrors({ ...errors });
     } else {
-      console.log(details);
+      console.info("Valid Form");
       dispatch(addUser(details));
       history.push("/");
-      setErrorMsg("");
     }
   };
 
@@ -71,17 +112,49 @@ const AddUser = (props) => {
       <div>
         <form>
           {/* authentication error messages */}
-          {errorMsg && (
-            <h4
-              style={{
-                color: "red",
-                textAlign: "center",
-                marginBottom: "10px",
-              }}
-            >
-              {errorMsg}
-            </h4>
+          {submitted && errors ? (
+            <>
+              <h4
+                style={{
+                  color: "red",
+                  textAlign: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                {errors.username}
+              </h4>
+              <h4
+                style={{
+                  color: "red",
+                  textAlign: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                {errors.fullname}
+              </h4>
+              <h4
+                style={{
+                  color: "red",
+                  textAlign: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                {errors.email}
+              </h4>
+              <h4
+                style={{
+                  color: "red",
+                  textAlign: "center",
+                  marginBottom: "10px",
+                }}
+              >
+                {errors.All}
+              </h4>
+            </>
+          ) : (
+            ""
           )}
+
           {/* form container */}
           <Grid container spacing={2}>
             <Grid item xs={4} className={classes.label}>
